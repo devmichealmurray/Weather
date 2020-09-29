@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="date_placeholder">Sat, September 27 2:24 PM</string>
+    <string name="temp_placeholder">91</string>
+    <string name="current_desc_placeholder">Partly Cloudy</string>
+    <string name="todays_temps_placeholder">91* / 59*</string>
+    <string name="feels_like_placeholder">Feels Like 99*</string>
+</resources>
