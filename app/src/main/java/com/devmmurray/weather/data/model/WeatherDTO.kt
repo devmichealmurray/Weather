@@ -56,8 +56,8 @@ data class DailyForecastsDTO(
     @Json(name = "dt") val time: Long?,
     @Json(name = "sunrise") val sunrise: Long?,
     @Json(name = "sunset") val sunset: Long?,
-    @Json(name = "temp") val dailyTemps: List<DailyForecastTemps>?,
-    @Json(name = "feels_like") val dailyFeelsLike: List<DailyForecastFeelsLikeDTO>?,
+    @Json(name = "temp") val dailyTemps: DailyForecastTempsDTO?,
+    @Json(name = "feels_like") val dailyFeelsLike: DailyForecastFeelsLikeDTO?,
     @Json(name = "weather") val dailyWeather: List<DailyForecastWeatherDTO>?
 )
 

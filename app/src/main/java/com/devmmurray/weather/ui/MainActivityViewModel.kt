@@ -10,6 +10,8 @@ import com.devmmurray.weather.data.repository.ApiRepo
 import com.devmmurray.weather.data.repository.DatabaseRepo
 import kotlinx.coroutines.launch
 
+private const val TAG = "ViewModel"
+
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: DatabaseRepo
@@ -48,10 +50,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun callToOpenWeather(lat: Double, lon: Double, units: String = "imperial") {
+        Log.d(TAG, "- - - - Call To Open Weather Called - - - - - ")
         viewModelScope.launch {
             try {
                 val result = ApiRepo
                     .getWeatherOneCall(lat, lon, units)
+                Log.d(TAG, "Result = ${result.toString()}")
                 if (result.isSuccessful) {
 
                     /**
@@ -80,11 +84,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         currentWeatherDescription = currentWeatherDescription
 
                     )
+
                     val currentWeather = WeatherEntity(
                         timeZoneOffset = result.body()?.timeZoneOffset,
                         current = current
                     )
-                    Log.d("*** Weather ***", "* * * Daily Forecast = $currentWeather * * *")
+                    Log.d(
+                        "*** Weather ***",
+                        "* * * Current Forecast = ${currentWeather.current} * * *"
+                    )
 
                     addCurrentWeather(currentWeather)
 
@@ -93,7 +101,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                      */
 
                     var hourlyForecast: HourlyForecastEntity? = null
-                    var hourlyForecastWeather: HourlyForecastWeatherEntity?
+                    var hourlyForecastWeather: HourlyForecastWeatherEntity? = null
 
                     result.body()?.hourlyForecasts?.forEach {
                         it.hourlyWeather?.forEach { hourly ->
@@ -110,35 +118,38 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                                 hourlyWeather = hourlyForecastWeather
                             )
                         }
-                        Log.d("*** Hourly ***", "* * * Daily Forecast = $hourlyForecast * * *")
+                        Log.d(
+                            "*** Hourly ***",
+                            "* * * Hourly Forecast = ${hourlyForecast.toString()} * * *"
+                        )
+                        Log.d(
+                            "*** Hourly ***",
+                            "* * * Hourly Forecast Weather = ${hourlyForecastWeather?.forecastDescription} * * *"
+                        )
 
                         hourlyForecast?.let { forecast -> addHourlyWeather(forecast) }
                     }
-
 
 
                     /**
                      * Daily Weather Builder
                      */
 
-                    var dailyForecastTemps: DailyForecastTempsEntity? = null
-                    var dailyFeelsLike: DailyForecastFeelsLikeEntity? = null
-                    var dailyWeather: DailyForecastWeatherEntity? = null
                     val dailyResponse = result.body()?.dailyForecasts
 
                     dailyResponse?.forEach {
-                        it.dailyTemps?.forEach { temp ->
-                            dailyForecastTemps = DailyForecastTempsEntity(
-                                lowTemp = temp.lowTemp,
-                                highTemp = temp.highTemp
-                            )
-                        }
-                        it.dailyFeelsLike?.forEach { feels ->
-                            dailyFeelsLike = DailyForecastFeelsLikeEntity(
-                                dayTimeFeelsLike = feels.dayTimeFeelsLike,
-                                nighttimeFeelsLike = feels.nighttimeFeelsLike
-                            )
-                        }
+
+                        val dailyForecastTemps = DailyForecastTempsEntity(
+                            lowTemp = it.dailyTemps?.lowTemp,
+                            highTemp = it.dailyTemps?.highTemp
+                        )
+
+                        val dailyFeelsLike = DailyForecastFeelsLikeEntity(
+                            dayTimeFeelsLike = it.dailyFeelsLike?.dayTimeFeelsLike,
+                            nighttimeFeelsLike = it.dailyFeelsLike?.nighttimeFeelsLike
+                        )
+
+                        var dailyWeather: DailyForecastWeatherEntity? = null
                         it.dailyWeather?.forEach { weather ->
                             dailyWeather = DailyForecastWeatherEntity(
                                 dailyId = weather.dailyId,
@@ -147,6 +158,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                                 forecastIcon = weather.forecastIcon
                             )
                         }
+
                         val dailyForecast = DailyForecastEntity(
                             time = it.time,
                             sunrise = it.sunrise,
@@ -156,16 +168,18 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                             dailyWeather = dailyWeather
                         )
 
-                        Log.d("*** Daily ***", "* * * Daily Forecast = $dailyForecast * * *")
+                        Log.d("*** Daily ***", "* * * Daily Forecast = ${dailyForecast.time} * * *")
                         addDailyWeather(dailyForecast)
                     }
 
                 } else {
-                    // Throw Exception
+                    Log.d(TAG, "======== RESULT NOT SUCCESSFUL =======")
                 }
 
             } catch (e: Exception) {
-                //Exception code body
+                Log.d(TAG, "+++++++ ERROR ${e.localizedMessage} ++++++++++++")
+                Log.d(TAG, "+++++++ ERROR ${e.message} ++++++++++++")
+                Log.d(TAG, "+++++++ ERROR ${e.printStackTrace()} ++++++++++++")
             }
         }
     }
