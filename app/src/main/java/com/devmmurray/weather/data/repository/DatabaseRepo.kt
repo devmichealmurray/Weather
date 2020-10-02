@@ -19,6 +19,10 @@ class DatabaseRepo(
     suspend fun getCurrentWeather() =
         currentWeatherDataSource.getCurrentWeather().toWeatherObject()
 
+    suspend fun deleteOldWeatherData() =
+        currentWeatherDataSource.deleteOldWeather()
+
+
 
     suspend fun addHourlyForecast(forecast: HourlyForecastEntity) =
         hourlyWeatherDataSource.addHourlyForecast(forecast)
@@ -26,11 +30,18 @@ class DatabaseRepo(
     suspend fun getHourlyForecasts() =
         hourlyWeatherDataSource.getHourlyForecasts().map { it.toHourlyForecastObject() }
 
+    suspend fun deleteOldHourlyForecasts() =
+        hourlyWeatherDataSource.deleteOldHourlyForecasts()
+
+
 
     suspend fun addDailyForecast(forecast: DailyForecastEntity) =
         dailyWeatherDataSource.addDailyForecast(forecast)
 
     suspend fun getDailyForecasts() =
         dailyWeatherDataSource.getDailyForecasts().map { it.toDailyForecastObject() }
+
+    suspend fun deleteOldDailyForecasts() =
+        dailyWeatherDataSource.deleteOldDailyForecasts()
 
 }

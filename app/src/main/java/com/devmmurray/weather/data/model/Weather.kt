@@ -7,7 +7,7 @@ class Weather(
 )
 
 class CurrentWeather(
-    val time: Long?,
+    val time: String?,
     val sunrise: Long?,
     val sunset: Long?,
     val temp: Double?,
@@ -29,7 +29,7 @@ class CurrentWeatherDescription(
 
 class HourlyForecasts(
     val uid: Long?,
-    val time: Long?,
+    val time: String?,
     val hourlyTemp: Double?,
     val hourlyFeelsLike: Double?,
     val hourlyWeather: HourlyForecastWeather?
@@ -47,7 +47,7 @@ class HourlyForecastWeather(
 
 class DailyForecasts(
     val uid: Long?,
-    val time: Long?,
+    val time: String?,
     val sunrise: Long?,
     val sunset: Long?,
     val dailyTemps: DailyForecastTemps?,

@@ -14,4 +14,7 @@ interface HourlyForecastsDAO {
 
     @Query("SELECT * FROM hourly_forecasts")
     suspend fun getHourlyForecasts(): MutableList<HourlyForecastEntity>
+
+    @Query("DELETE FROM hourly_forecasts")
+    suspend fun deleteOldHourlyForecasts()
 }

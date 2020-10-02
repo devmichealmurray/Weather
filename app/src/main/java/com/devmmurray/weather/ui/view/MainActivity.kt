@@ -10,7 +10,6 @@ import com.devmmurray.weather.data.model.DailyForecasts
 import com.devmmurray.weather.data.model.HourlyForecasts
 import com.devmmurray.weather.data.model.Weather
 import com.devmmurray.weather.ui.viewmodel.MainActivityViewModel
-import com.devmmurray.weather.ui.viewmodel.TimeFlag
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -24,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        mainViewModel.clearDatabase()
         mainViewModel.getWeather(32.755489, -97.330765, "imperial")
         mainViewModel.getWeatherEntities()
 
@@ -34,9 +34,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val currentWeatherObserver = Observer<Weather> {
-        todaysDate.text = it.current?.time?.let { time ->
-            mainViewModel.transformTimeStamp(time, TimeFlag.FULL)
-        }
+        todaysDate.text = it.current?.time
 
         currentTemp.text = it.current?.temp?.toInt().toString()
         currentDescription.text = it.current?.currentWeatherDescription?.mainDescription.toString()

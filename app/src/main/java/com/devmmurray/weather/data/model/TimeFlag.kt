@@ -1,4 +1,4 @@
-package com.devmmurray.weather.ui.viewmodel
+package com.devmmurray.weather.data.model
 
 enum class TimeFlag {
     FULL, HOUR, DAY

@@ -14,4 +14,7 @@ interface CurrentWeatherDAO {
 
     @Query("SELECT * FROM current_weather")
     suspend fun getCurrentWeather(): WeatherEntity
+
+    @Query("DELETE FROM current_weather")
+    suspend fun deleteOldWeather()
 }
