@@ -3,10 +3,15 @@ package com.devmmurray.weather.ui.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.devmmurray.weather.data.database.RoomDatabaseClient
 import com.devmmurray.weather.data.model.*
+import com.devmmurray.weather.data.repository.ApiRepo
 import com.devmmurray.weather.data.repository.DatabaseRepo
+import kotlinx.coroutines.launch
 import retrofit2.Response
+
+private const val TAG = "BaseViewModel"
 
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -23,7 +28,59 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         repository = DatabaseRepo(currentWeatherDAO, hourlyForecastsDAO, dailyForecastsDAO)
     }
 
-    fun parseForCurrentWeather(result: Response<WeatherDTO>): Any? {
+
+    private fun addCurrentWeather(weather: WeatherEntity) {
+        viewModelScope.launch {
+            repository.addCurrentWeather(weather)
+        }
+    }
+
+    private fun addHourlyWeather(hourlyWeather: HourlyForecastEntity) {
+        viewModelScope.launch {
+            repository.addHourlyForecast(hourlyWeather)
+        }
+    }
+
+    private fun addDailyWeather(dailyWeather: DailyForecastEntity) {
+        viewModelScope.launch {
+            repository.addDailyForecast(dailyWeather)
+        }
+    }
+
+    fun getWeatherFromBaseViewModel(lat: Double, lon: Double, units: String = "imperial") {
+        callToOpenWeather(lat, lon, units)
+    }
+
+    private fun callToOpenWeather(lat: Double, lon: Double, units: String = "imperial") {
+        Log.d(TAG, "- - - - Call To Open Weather Called - - - - - ")
+        viewModelScope.launch {
+            try {
+                val result = ApiRepo
+                    .getWeatherOneCall(lat, lon, units)
+                Log.d(TAG, "Result = ${result.toString()}")
+                if (result.isSuccessful) {
+                    val currentWeather = parseForCurrentWeather(result)
+                    addCurrentWeather(currentWeather as WeatherEntity)
+
+                    val dailyForecast = parseForDailyForecast(result)
+                    addDailyWeather(dailyForecast as DailyForecastEntity)
+
+                    val hourlyForecast = parseForHourlyForecast(result)
+                    addHourlyWeather(hourlyForecast as HourlyForecastEntity)
+
+                } else {
+                    Log.d(TAG, "======== RESULT NOT SUCCESSFUL =======")
+                }
+
+            } catch (e: Exception) {
+                Log.d(TAG, "+++++++ ERROR ${e.localizedMessage} ++++++++++++")
+                Log.d(TAG, "+++++++ ERROR ${e.message} ++++++++++++")
+                Log.d(TAG, "+++++++ ERROR ${e.printStackTrace()} ++++++++++++")
+            }
+        }
+    }
+
+    private fun parseForCurrentWeather(result: Response<WeatherDTO>): Any? {
         val currentResponse = result.body()?.current
         var currentWeatherDescription: CurrentWeatherDescriptionEntity? = null
 
@@ -60,7 +117,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
 
-    fun parseForDailyForecast(result: Response<WeatherDTO>): DailyForecastEntity? {
+    private fun parseForDailyForecast(result: Response<WeatherDTO>): DailyForecastEntity? {
         val dailyResponse = result.body()?.dailyForecasts
         var dailyForecast: DailyForecastEntity? = null
         dailyResponse?.forEach {
@@ -101,7 +158,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
 
-    fun parseForHourlyForecast(result: Response<WeatherDTO>): HourlyForecastEntity? {
+    private fun parseForHourlyForecast(result: Response<WeatherDTO>): HourlyForecastEntity? {
         var hourlyForecast: HourlyForecastEntity? = null
         var hourlyForecastWeather: HourlyForecastWeatherEntity? = null
 

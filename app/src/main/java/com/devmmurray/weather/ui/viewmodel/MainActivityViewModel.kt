@@ -1,69 +1,63 @@
 package com.devmmurray.weather.ui.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.devmmurray.weather.data.model.DailyForecastEntity
-import com.devmmurray.weather.data.model.HourlyForecastEntity
-import com.devmmurray.weather.data.model.WeatherEntity
-import com.devmmurray.weather.data.repository.ApiRepo
+import com.devmmurray.weather.data.model.DailyForecasts
+import com.devmmurray.weather.data.model.HourlyForecasts
+import com.devmmurray.weather.data.model.Weather
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "ViewModel"
 
 class MainActivityViewModel(application: Application) : BaseViewModel(application) {
 
+    private val _currentWeather by lazy { MutableLiveData<Weather>() }
+    val currentWeather: LiveData<Weather> get() = _currentWeather
 
-    private fun addCurrentWeather(weather: WeatherEntity) {
-        viewModelScope.launch {
-            repository.addCurrentWeather(weather)
-        }
-    }
+    private val _dailyForecasts
+            by lazy { MutableLiveData<List<DailyForecasts>>() }
+    val dailyForecasts: LiveData<List<DailyForecasts>> get() = _dailyForecasts
 
-    private fun addHourlyWeather(hourlyWeather: HourlyForecastEntity) {
-        viewModelScope.launch {
-            repository.addHourlyForecast(hourlyWeather)
-        }
-    }
-
-    private fun addDailyWeather(dailyWeather: DailyForecastEntity) {
-        viewModelScope.launch {
-            repository.addDailyForecast(dailyWeather)
-        }
-    }
+    private val _hourlyForecasts
+            by lazy { MutableLiveData<List<HourlyForecasts>>() }
+    val hourlyForecasts: LiveData<List<HourlyForecasts>> get() = _hourlyForecasts
 
     fun getWeather(lat: Double, lon: Double, units: String = "imperial") {
-        callToOpenWeather(lat, lon, units)
+        getWeatherFromBaseViewModel(lat, lon, units)
     }
 
-
-
-    private fun callToOpenWeather(lat: Double, lon: Double, units: String = "imperial") {
-        Log.d(TAG, "- - - - Call To Open Weather Called - - - - - ")
+    fun getWeatherEntities() {
         viewModelScope.launch {
-            try {
-                val result = ApiRepo
-                    .getWeatherOneCall(lat, lon, units)
-                Log.d(TAG, "Result = ${result.toString()}")
-                if (result.isSuccessful) {
-                    val currentWeather = parseForCurrentWeather(result)
-                    addCurrentWeather(currentWeather as WeatherEntity)
-
-                    val dailyForecast = parseForDailyForecast(result)
-                    addDailyWeather(dailyForecast as DailyForecastEntity)
-
-                    val hourlyForecast = parseForHourlyForecast(result)
-                    addHourlyWeather(hourlyForecast as HourlyForecastEntity)
-
-                } else {
-                    Log.d(TAG, "======== RESULT NOT SUCCESSFUL =======")
-                }
-
-            } catch (e: Exception) {
-                Log.d(TAG, "+++++++ ERROR ${e.localizedMessage} ++++++++++++")
-                Log.d(TAG, "+++++++ ERROR ${e.message} ++++++++++++")
-                Log.d(TAG, "+++++++ ERROR ${e.printStackTrace()} ++++++++++++")
-            }
+            val weather = repository.getCurrentWeather()
+            _currentWeather.postValue(weather)
+            val daily = repository.getDailyForecasts()
+            _dailyForecasts.postValue(daily)
+            val hourly = repository.getHourlyForecasts()
+            _hourlyForecasts.postValue(hourly)
         }
     }
+
+    @SuppressLint("SimpleDateFormat")
+    fun transformTimeStamp(utcTime: Long, flag: TimeFlag): String {
+        val timeStamp = Date(
+            TimeUnit.MILLISECONDS
+                .convert(utcTime, TimeUnit.SECONDS)
+        ).time
+
+        val correctFormat = when (flag) {
+            TimeFlag.FULL -> SimpleDateFormat("E, MMMM d hh:mm a")
+            TimeFlag.DAY -> SimpleDateFormat("EEEE")
+            TimeFlag.HOUR -> SimpleDateFormat("hh a")
+        }
+
+        return correctFormat.format(timeStamp)
+    }
+
+
 }
