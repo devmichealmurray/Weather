@@ -46,9 +46,9 @@ object JsonProcessing {
     }
 
 
-    fun parseForDailyForecast(result: Response<WeatherDTO>): DailyForecastEntity? {
+    fun parseForDailyForecast(result: Response<WeatherDTO>): ArrayList<DailyForecastEntity>? {
         val dailyResponse = result.body()?.dailyForecasts
-        var dailyForecast: DailyForecastEntity? = null
+        var dailyForecastList = ArrayList<DailyForecastEntity>()
         dailyResponse?.forEach {
 
             val dailyForecastTemps = DailyForecastTempsEntity(
@@ -71,7 +71,7 @@ object JsonProcessing {
                 )
             }
 
-            dailyForecast = DailyForecastEntity(
+            val dailyForecast = DailyForecastEntity(
                 time = it.time?.let { utcTime ->
                     timeStampProcessing.transformTimeStamp(utcTime, TimeFlag.DAY)
                 },
@@ -82,15 +82,16 @@ object JsonProcessing {
                 dailyWeather = dailyWeather
             )
 
+            dailyForecastList.add(dailyForecast)
             Log.d("*** Daily ***", "* * * Daily Forecast = ${dailyForecast?.time} * * *")
 
         }
-        return dailyForecast
+        return dailyForecastList
     }
 
 
-    fun parseForHourlyForecast(result: Response<WeatherDTO>): HourlyForecastEntity? {
-        var hourlyForecast: HourlyForecastEntity? = null
+    fun parseForHourlyForecast(result: Response<WeatherDTO>): ArrayList<HourlyForecastEntity>? {
+        var hourlyForecastList = ArrayList<HourlyForecastEntity>()
         var hourlyForecastWeather: HourlyForecastWeatherEntity? = null
 
         result.body()?.hourlyForecasts?.forEach {
@@ -101,7 +102,7 @@ object JsonProcessing {
                     forecastDescription = hourly.forecastDescription,
                     forecastIcon = hourly.forecastIcon
                 )
-                hourlyForecast = HourlyForecastEntity(
+                val hourlyForecast = HourlyForecastEntity(
                     time = it.time?.let { utcTime ->
                         timeStampProcessing.transformTimeStamp(utcTime, TimeFlag.HOUR)
                     },
@@ -109,14 +110,16 @@ object JsonProcessing {
                     hourlyFeelsLike = it.hourlyFeelsLike?.toInt(),
                     hourlyWeather = hourlyForecastWeather
                 )
+                hourlyForecastList.add(hourlyForecast)
             }
             Log.d(
                 "*** Weather ***",
                 "* * * Hourly Forecast = ${hourlyForecastWeather.toString()} * * *"
             )
 
+
         }
 
-        return hourlyForecast
+        return hourlyForecastList
     }
 }

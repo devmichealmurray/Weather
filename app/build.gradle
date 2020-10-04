@@ -95,4 +95,7 @@ dependencies {
 
     annotationProcessor "androidx.room:room-compiler:2.2.5"
 
+    // Picasso
+    implementation "com.squareup.picasso:picasso:2.71828"
+
 }

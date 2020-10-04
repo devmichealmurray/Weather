@@ -32,7 +32,6 @@ class MainActivityViewModel(application: Application) : BaseViewModel(applicatio
 
     fun getWeather(lat: Double, lon: Double, units: String = "imperial") {
         getWeatherFromBaseViewModel(lat, lon, units)
-
     }
 
     fun getWeatherEntities() {
@@ -46,7 +45,7 @@ class MainActivityViewModel(application: Application) : BaseViewModel(applicatio
                 _hourlyForecasts.postValue(hourly)
             } catch (e: Exception) {
                 // Exception Code Body
-                Log.d(TAG, "* * * *  getWeatherEntites Failed * * * * ")
+                Log.d(TAG, "* * * *  getWeatherEntities Failed * * * * ")
             }
         }
     }

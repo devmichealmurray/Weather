@@ -81,10 +81,14 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
                     addCurrentWeather(currentWeather as WeatherEntity)
 
                     val dailyForecast = JsonProcessing.parseForDailyForecast(result)
-                    addDailyWeather(dailyForecast as DailyForecastEntity)
+                    dailyForecast?.forEach {
+                        addDailyWeather(it)
+                    }
 
                     val hourlyForecast = JsonProcessing.parseForHourlyForecast(result)
-                    addHourlyWeather(hourlyForecast as HourlyForecastEntity)
+                    hourlyForecast?.forEach {
+                        addHourlyWeather(it)
+                    }
 
                 } else {
                     Log.d(TAG, "======== RESULT NOT SUCCESSFUL =======")
