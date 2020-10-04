@@ -3,7 +3,7 @@ package com.devmmurray.weather.data.model
 import android.util.Log
 import retrofit2.Response
 
-class JsonProcessing {
+object JsonProcessing {
 
     private val timeStampProcessing: TimeStampProcessing = TimeStampProcessing()
 
@@ -26,8 +26,8 @@ class JsonProcessing {
             },
             sunrise = currentResponse?.sunrise,
             sunset = currentResponse?.sunset,
-            temp = currentResponse?.temp,
-            feels = currentResponse?.feels,
+            temp = currentResponse?.temp?.toInt(),
+            feels = currentResponse?.feels?.toInt(),
             humidity = currentResponse?.humidity,
             windSpeed = currentResponse?.windSpeed,
             currentWeatherDescription = currentWeatherDescription
@@ -52,13 +52,13 @@ class JsonProcessing {
         dailyResponse?.forEach {
 
             val dailyForecastTemps = DailyForecastTempsEntity(
-                lowTemp = it.dailyTemps?.lowTemp,
-                highTemp = it.dailyTemps?.highTemp
+                lowTemp = it.dailyTemps?.lowTemp?.toInt(),
+                highTemp = it.dailyTemps?.highTemp?.toInt()
             )
 
             val dailyFeelsLike = DailyForecastFeelsLikeEntity(
-                dayTimeFeelsLike = it.dailyFeelsLike?.dayTimeFeelsLike,
-                nighttimeFeelsLike = it.dailyFeelsLike?.nighttimeFeelsLike
+                dayTimeFeelsLike = it.dailyFeelsLike?.dayTimeFeelsLike?.toInt(),
+                nighttimeFeelsLike = it.dailyFeelsLike?.nighttimeFeelsLike?.toInt()
             )
 
             var dailyWeather: DailyForecastWeatherEntity? = null
@@ -105,8 +105,8 @@ class JsonProcessing {
                     time = it.time?.let { utcTime ->
                         timeStampProcessing.transformTimeStamp(utcTime, TimeFlag.HOUR)
                     },
-                    hourlyTemp = it.hourlyTemp,
-                    hourlyFeelsLike = it.hourlyFeelsLike,
+                    hourlyTemp = it.hourlyTemp?.toInt(),
+                    hourlyFeelsLike = it.hourlyFeelsLike?.toInt(),
                     hourlyWeather = hourlyForecastWeather
                 )
             }

@@ -3,6 +3,8 @@ package com.devmmurray.weather.ui.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.devmmurray.weather.data.database.RoomDatabaseClient
 import com.devmmurray.weather.data.model.DailyForecastEntity
@@ -17,8 +19,10 @@ private const val TAG = "BaseViewModel"
 
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val _databaseReady by lazy { MutableLiveData<Boolean>() }
+    val databaseReady: LiveData<Boolean> get() = _databaseReady
+
     val repository: DatabaseRepo
-    private val jsonProcessing: JsonProcessing = JsonProcessing()
 
     init {
         val currentWeatherDAO = RoomDatabaseClient
@@ -73,13 +77,13 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
                     .getWeatherOneCall(lat, lon, units)
 
                 if (result.isSuccessful) {
-                    val currentWeather = jsonProcessing.parseForCurrentWeather(result)
+                    val currentWeather = JsonProcessing.parseForCurrentWeather(result)
                     addCurrentWeather(currentWeather as WeatherEntity)
 
-                    val dailyForecast = jsonProcessing.parseForDailyForecast(result)
+                    val dailyForecast = JsonProcessing.parseForDailyForecast(result)
                     addDailyWeather(dailyForecast as DailyForecastEntity)
 
-                    val hourlyForecast = jsonProcessing.parseForHourlyForecast(result)
+                    val hourlyForecast = JsonProcessing.parseForHourlyForecast(result)
                     addHourlyWeather(hourlyForecast as HourlyForecastEntity)
 
                 } else {
@@ -91,6 +95,8 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
                 Log.d(TAG, "+++++++ ERROR ${e.message} ++++++++++++")
                 Log.d(TAG, "+++++++ ERROR ${e.printStackTrace()} ++++++++++++")
             }
+
+            _databaseReady.postValue(true)
         }
     }
 

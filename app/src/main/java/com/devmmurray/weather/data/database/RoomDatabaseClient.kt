@@ -8,7 +8,7 @@ import com.devmmurray.weather.data.model.DailyForecastEntity
 import com.devmmurray.weather.data.model.HourlyForecastEntity
 import com.devmmurray.weather.data.model.WeatherEntity
 
-const val DATABASE_SCHEMA_VERSION = 1
+const val DATABASE_SCHEMA_VERSION = 2
 const val DB_NAME = "weather-db"
 
 @Database(

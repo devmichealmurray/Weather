@@ -10,7 +10,6 @@ import com.devmmurray.weather.data.model.DailyForecasts
 import com.devmmurray.weather.data.model.HourlyForecasts
 import com.devmmurray.weather.data.model.Weather
 import com.devmmurray.weather.ui.viewmodel.MainActivityViewModel
-import kotlinx.android.synthetic.main.activity_main.*
 
 
 private const val TAG = "* * * MAIN ACTIVITY * * *"
@@ -27,19 +26,24 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getWeather(32.755489, -97.330765, "imperial")
         mainViewModel.getWeatherEntities()
 
-        mainViewModel.currentWeather.observe(this, currentWeatherObserver)
-        mainViewModel.dailyForecasts.observe(this, dailyForecastsObserver)
-        mainViewModel.hourlyForecasts.observe(this, hourlyForecastsObserver)
+        mainViewModel.apply {
+            currentWeather.observe(this@MainActivity, currentWeatherObserver)
+            dailyForecasts.observe(this@MainActivity, dailyForecastsObserver)
+            hourlyForecasts.observe(this@MainActivity, hourlyForecastsObserver)
+            databaseReady.observe(this@MainActivity, Observer { mainViewModel.getWeatherEntities() })
+        }
+
+
 
     }
 
     private val currentWeatherObserver = Observer<Weather> {
-        todaysDate.text = it.current?.time
-
-        currentTemp.text = it.current?.temp?.toInt().toString()
-        currentDescription.text = it.current?.currentWeatherDescription?.mainDescription.toString()
-        val feelsLike = it.current?.feels?.toInt().toString()
-        todaysFeelsLike.text = "Feels Like $feelsLike"
+//        todaysDate.text = it.current?.time
+//
+//        currentTemp.text = it.current?.temp?.toInt().toString()
+//        currentDescription.text = it.current?.currentWeatherDescription?.mainDescription.toString()
+//        val feelsLike = it.current?.feels?.toInt().toString()
+//        todaysFeelsLike.text = "Feels Like $feelsLike"
     }
 
     private val dailyForecastsObserver = Observer<List<DailyForecasts>> {
@@ -49,4 +53,5 @@ class MainActivity : AppCompatActivity() {
     private val hourlyForecastsObserver = Observer<List<HourlyForecasts>> {
 
     }
+
 }

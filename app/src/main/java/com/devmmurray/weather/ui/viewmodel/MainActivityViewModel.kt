@@ -1,7 +1,7 @@
 package com.devmmurray.weather.ui.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -9,9 +9,6 @@ import com.devmmurray.weather.data.model.DailyForecasts
 import com.devmmurray.weather.data.model.HourlyForecasts
 import com.devmmurray.weather.data.model.Weather
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 private const val TAG = "ViewModel"
 
@@ -28,25 +25,30 @@ class MainActivityViewModel(application: Application) : BaseViewModel(applicatio
             by lazy { MutableLiveData<List<HourlyForecasts>>() }
     val hourlyForecasts: LiveData<List<HourlyForecasts>> get() = _hourlyForecasts
 
+
     fun clearDatabase() {
         deleteAllWeather()
     }
 
     fun getWeather(lat: Double, lon: Double, units: String = "imperial") {
         getWeatherFromBaseViewModel(lat, lon, units)
+
     }
 
     fun getWeatherEntities() {
         viewModelScope.launch {
-            val weather = repository.getCurrentWeather()
-            _currentWeather.postValue(weather)
-            val daily = repository.getDailyForecasts()
-            _dailyForecasts.postValue(daily)
-            val hourly = repository.getHourlyForecasts()
-            _hourlyForecasts.postValue(hourly)
+            try {
+                val weather = repository.getCurrentWeather()
+                _currentWeather.postValue(weather)
+                val daily = repository.getDailyForecasts()
+                _dailyForecasts.postValue(daily)
+                val hourly = repository.getHourlyForecasts()
+                _hourlyForecasts.postValue(hourly)
+            } catch (e: Exception) {
+                // Exception Code Body
+                Log.d(TAG, "* * * *  getWeatherEntites Failed * * * * ")
+            }
         }
     }
-
-
 
 }

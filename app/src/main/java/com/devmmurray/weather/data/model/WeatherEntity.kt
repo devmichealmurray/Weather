@@ -24,8 +24,8 @@ class CurrentWeatherEntity(
     val time: String?,
     val sunrise: Long?,
     val sunset: Long?,
-    val temp: Double?,
-    val feels: Double?,
+    val temp: Int?,
+    val feels: Int?,
     val humidity: Int?,
     val windSpeed: Double?,
     @Embedded
@@ -57,9 +57,9 @@ class HourlyForecastEntity(
     @ColumnInfo(name = "time")
     val time: String?,
     @ColumnInfo(name = "temp")
-    val hourlyTemp: Double?,
+    val hourlyTemp: Int?,
     @ColumnInfo(name = "feels")
-    val hourlyFeelsLike: Double?,
+    val hourlyFeelsLike: Int?,
     @Embedded
     val hourlyWeather: HourlyForecastWeatherEntity?
 
@@ -108,8 +108,8 @@ class DailyForecastEntity(
 
 @Entity
 class DailyForecastTempsEntity(
-    val lowTemp: Double?,
-    val highTemp: Double?
+    val lowTemp: Int?,
+    val highTemp: Int?
 ) {
     fun toDailyForecastTempsObject() = DailyForecastTemps(
         lowTemp, highTemp
@@ -118,8 +118,8 @@ class DailyForecastTempsEntity(
 
 @Entity
 class DailyForecastFeelsLikeEntity(
-    val dayTimeFeelsLike: Double?,
-    val nighttimeFeelsLike: Double?
+    val dayTimeFeelsLike: Int?,
+    val nighttimeFeelsLike: Int?
 ) {
     fun toDailyForecastFeelsLikeObject() = DailyForecastFeelsLike(
         dayTimeFeelsLike, nighttimeFeelsLike
